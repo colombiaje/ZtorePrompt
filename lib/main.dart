@@ -16,7 +16,7 @@ class ZtorePromptApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      home: const PromptFormScreen(), // <-- CORREGIDO AQUÍ
+      home: PromptFormScreen(),
     );
   }
 }

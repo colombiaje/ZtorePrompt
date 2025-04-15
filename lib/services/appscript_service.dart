@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 // ✅ URL final confirmada como funcional
-const String baseUrl = 'https://script.google.com/macros/s/AKfycbx76Bt_bsuJ20NRWxvx3Pz-hZlsvj7aOzWU15r-8X5IN9BKWoTMpMO6r0MyEc9tVnB5/exec';
+const String baseUrl = 'https://script.google.com/macros/s/AKfycbxwvGrg6OCEZvoMSCwPw2jUzqpZZ7rF1wQaJ7X6Gpyz0rBsejdohGZhuGsEi7w36I9m/exec';
 
 /// 🔹 Enviar un nuevo prompt (acción: 'addPrompt') usando POST
 Future<String> enviarPrompt({
@@ -51,5 +51,30 @@ Future<Map<String, List<String>>> obtenerOpcionesUnicas() async {
     }
   } catch (e) {
     throw Exception('Error al obtener opciones únicas: $e');
+  }
+}
+
+/// 🔹 Agrupa los propósitos por contexto (de forma eficiente con el JSON)
+Future<Map<String, List<String>>> obtenerOpcionesUnicasAgrupadas() async {
+  final url = Uri.parse('$baseUrl?action=getOptions');
+
+  try {
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final Map<String, dynamic> rawMap = data['propositoPorContexto'];
+
+      Map<String, List<String>> mapa = {};
+      rawMap.forEach((key, value) {
+        mapa[key] = List<String>.from(value);
+      });
+
+      return mapa;
+    } else {
+      throw Exception('Error del servidor: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Error al obtener opciones: $e');
   }
 }

@@ -15,34 +15,37 @@ class _PromptFormScreenState extends State<PromptFormScreen> {
   String? _nuevoContexto;
   String? _nuevoProposito;
   String _promptTexto = '';
-
-  List<String> _contextos = [];
-  List<String> _propositos = [];
-
-  bool _cargandoOpciones = true;
+  Map<String, List<String>> mapaContextoProposito = {};
+  List<String> contextos = [];
+  List<String> propositosFiltrados = [];
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _cargarOpciones();
+    cargarDatos();
   }
 
-  Future<void> _cargarOpciones() async {
-    try {
-      final data = await obtenerOpcionesUnicas();
-      setState(() {
-        _contextos = data['contexto']!..sort();
-        _propositos = data['proposito']!..sort();
-        _cargandoOpciones = false;
-      });
-    } catch (e) {
-      setState(() {
-        _cargandoOpciones = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al cargar opciones: $e')),
-      );
-    }
+  Future<void> cargarDatos() async {
+    final opciones = await obtenerOpcionesUnicasAgrupadas();
+    setState(() {
+      mapaContextoProposito = opciones;
+      contextos = ['CREAR_NUEVO', ...opciones.keys.toList()..sort()];
+      isLoading = false;
+
+      if (_contextoSeleccionado != null &&
+          mapaContextoProposito.containsKey(_contextoSeleccionado!)) {
+        actualizarPropositos(_contextoSeleccionado!);
+      }
+    });
+  }
+
+  void actualizarPropositos(String contexto) {
+    final lista = mapaContextoProposito[contexto] ?? [];
+    setState(() {
+      propositosFiltrados = ['CREAR_NUEVO', ...lista.toList()..sort()];
+      _propositoSeleccionado = null;
+    });
   }
 
   Future<void> _enviarFormulario() async {
@@ -77,7 +80,7 @@ class _PromptFormScreenState extends State<PromptFormScreen> {
       _promptTexto = '';
     });
 
-    await _cargarOpciones();
+    await cargarDatos();
   }
 
   @override
@@ -86,7 +89,7 @@ class _PromptFormScreenState extends State<PromptFormScreen> {
       appBar: AppBar(
         title: const Text('Crear nuevo Prompt'),
       ),
-      body: _cargandoOpciones
+      body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
         padding: const EdgeInsets.all(16.0),
@@ -94,32 +97,37 @@ class _PromptFormScreenState extends State<PromptFormScreen> {
           key: _formKey,
           child: ListView(
             children: [
-              // 🔹 Campo: Contexto de uso
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
                   labelText: 'Contexto de uso',
                 ),
                 value: _contextoSeleccionado,
-                items: [
-                  const DropdownMenuItem(
-                    value: 'CREAR_NUEVO',
-                    child: Row(
-                      children: [
-                        Icon(Icons.add_circle, color: Colors.deepOrange),
-                        SizedBox(width: 8),
-                        Text('➕ Crear nuevo contexto'),
-                      ],
-                    ),
-                  ),
-                  ..._contextos.map((c) => DropdownMenuItem(
-                    value: c,
-                    child: Text(c),
-                  )),
-                ],
+                items: contextos
+                    .map((c) => DropdownMenuItem(
+                  value: c,
+                  child: c == 'CREAR_NUEVO'
+                      ? const Row(
+                    children: [
+                      Icon(Icons.add_circle,
+                          color: Colors.deepOrange),
+                      SizedBox(width: 8),
+                      Text('➕ Crear nuevo contexto'),
+                    ],
+                  )
+                      : Text(c),
+                ))
+                    .toList(),
                 onChanged: (value) {
                   setState(() {
                     _contextoSeleccionado = value;
                     _nuevoContexto = null;
+                    if (value != null && value != 'CREAR_NUEVO') {
+                      actualizarPropositos(value);
+                    } else {
+                      propositosFiltrados = ['CREAR_NUEVO'];
+                    }
+                    _propositoSeleccionado = null;
+                    _nuevoProposito = null;
                   });
                 },
                 validator: (value) =>
@@ -141,28 +149,26 @@ class _PromptFormScreenState extends State<PromptFormScreen> {
                 ),
               const SizedBox(height: 20),
 
-              // 🔹 Campo: Propósito de uso
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
                   labelText: 'Propósito de uso',
                 ),
                 value: _propositoSeleccionado,
-                items: [
-                  const DropdownMenuItem(
-                    value: 'CREAR_NUEVO',
-                    child: Row(
-                      children: [
-                        Icon(Icons.add_circle, color: Colors.amber),
-                        SizedBox(width: 8),
-                        Text('➕ Crear nuevo propósito'),
-                      ],
-                    ),
-                  ),
-                  ..._propositos.map((p) => DropdownMenuItem(
-                    value: p,
-                    child: Text(p),
-                  )),
-                ],
+                items: propositosFiltrados
+                    .map((p) => DropdownMenuItem(
+                  value: p,
+                  child: p == 'CREAR_NUEVO'
+                      ? const Row(
+                    children: [
+                      Icon(Icons.add_circle,
+                          color: Colors.amber),
+                      SizedBox(width: 8),
+                      Text('➕ Crear nuevo propósito'),
+                    ],
+                  )
+                      : Text(p),
+                ))
+                    .toList(),
                 onChanged: (value) {
                   setState(() {
                     _propositoSeleccionado = value;
@@ -188,7 +194,6 @@ class _PromptFormScreenState extends State<PromptFormScreen> {
                 ),
               const SizedBox(height: 20),
 
-              // 🔹 Campo: Texto del prompt
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Texto del prompt',
