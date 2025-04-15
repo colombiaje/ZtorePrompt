@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/appscript_service.dart';
+import 'prompt_consulta_widget.dart';
 
 class PromptFormScreen extends StatefulWidget {
   const PromptFormScreen({super.key});
@@ -210,6 +211,11 @@ class _PromptFormScreenState extends State<PromptFormScreen> {
                 onPressed: _enviarFormulario,
                 child: const Text('Guardar Prompt'),
               ),
+
+              const SizedBox(height: 30),
+
+// 👇 Agregamos el nuevo widget de consulta aquí
+              const PromptConsultaWidget(),
             ],
           ),
         ),

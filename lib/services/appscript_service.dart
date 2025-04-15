@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 // ✅ URL final confirmada como funcional
-const String baseUrl = 'https://script.google.com/macros/s/AKfycbxwvGrg6OCEZvoMSCwPw2jUzqpZZ7rF1wQaJ7X6Gpyz0rBsejdohGZhuGsEi7w36I9m/exec';
+const String baseUrl = 'https://script.google.com/macros/s/AKfycbxDz7ixsztfFkiDKz2MnByyDUl5d4evVvvorJ_6_m6BA5GuZ3sq1VS2t4Fpi7K5dyvs/exec';
 
 /// 🔹 Enviar un nuevo prompt (acción: 'addPrompt') usando POST
 Future<String> enviarPrompt({
@@ -78,3 +78,20 @@ Future<Map<String, List<String>>> obtenerOpcionesUnicasAgrupadas() async {
     throw Exception('Error al obtener opciones: $e');
   }
 }
+
+Future<List<Map<String, dynamic>>> consultarPromptsPorContextoYProposito(
+    String contexto, String proposito) async {
+  final uri = Uri.parse(
+      '$baseUrl?action=queryPrompts&contextoUso=$contexto&propositoUso=$proposito');
+
+  final response = await http.get(uri);
+
+  if (response.statusCode == 200) {
+    final List<dynamic> jsonData = jsonDecode(response.body);
+    return jsonData.map<Map<String, dynamic>>((item) => Map<String, dynamic>.from(item)).toList();
+  } else {
+    throw Exception('Error al consultar prompts');
+  }
+}
+
+
