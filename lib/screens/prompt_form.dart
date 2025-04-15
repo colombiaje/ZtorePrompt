@@ -76,6 +76,9 @@ class _PromptFormScreenState extends State<PromptFormScreen> {
       _nuevoProposito = null;
       _promptTexto = '';
     });
+
+    // ✅ Cargar nuevamente las opciones desde Google Sheets
+    await _cargarOpciones();
   }
 
   @override
