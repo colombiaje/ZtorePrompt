@@ -16,6 +16,8 @@ class _PromptConsultaWidgetState extends State<PromptConsultaWidget> {
   List<String> propositos = [];
   List<Map<String, dynamic>> promptsEncontrados = [];
 
+  Map<String, List<String>> propositosPorContexto = {};
+
   bool cargando = false;
 
   @override
@@ -27,9 +29,11 @@ class _PromptConsultaWidgetState extends State<PromptConsultaWidget> {
   Future<void> _cargarOpciones() async {
     try {
       final data = await obtenerOpcionesUnicas();
+      final agrupados = await obtenerOpcionesUnicasAgrupadas();
+
       setState(() {
         contextos = data['contexto']!..sort();
-        propositos = data['proposito']!..sort();
+        propositosPorContexto = agrupados;
       });
     } catch (e) {
       debugPrint('Error cargando opciones: $e');
@@ -81,6 +85,9 @@ class _PromptConsultaWidgetState extends State<PromptConsultaWidget> {
           onChanged: (value) {
             setState(() {
               contextoSeleccionado = value;
+              propositoSeleccionado = null; // Reiniciar selección
+              propositos = propositosPorContexto[value] ?? [];
+              propositos.sort();
             });
           },
         ),
