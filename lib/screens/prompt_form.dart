@@ -77,7 +77,6 @@ class _PromptFormScreenState extends State<PromptFormScreen> {
       _promptTexto = '';
     });
 
-    // ✅ Cargar nuevamente las opciones desde Google Sheets
     await _cargarOpciones();
   }
 
@@ -102,20 +101,20 @@ class _PromptFormScreenState extends State<PromptFormScreen> {
                 ),
                 value: _contextoSeleccionado,
                 items: [
-                  ..._contextos.map((c) => DropdownMenuItem(
-                    value: c,
-                    child: Text(c),
-                  )),
                   const DropdownMenuItem(
                     value: 'CREAR_NUEVO',
                     child: Row(
                       children: [
-                        Icon(Icons.add, color: Colors.blue),
+                        Icon(Icons.add_circle, color: Colors.deepOrange),
                         SizedBox(width: 8),
                         Text('➕ Crear nuevo contexto'),
                       ],
                     ),
-                  )
+                  ),
+                  ..._contextos.map((c) => DropdownMenuItem(
+                    value: c,
+                    child: Text(c),
+                  )),
                 ],
                 onChanged: (value) {
                   setState(() {
@@ -149,20 +148,20 @@ class _PromptFormScreenState extends State<PromptFormScreen> {
                 ),
                 value: _propositoSeleccionado,
                 items: [
-                  ..._propositos.map((p) => DropdownMenuItem(
-                    value: p,
-                    child: Text(p),
-                  )),
                   const DropdownMenuItem(
                     value: 'CREAR_NUEVO',
                     child: Row(
                       children: [
-                        Icon(Icons.add, color: Colors.green),
+                        Icon(Icons.add_circle, color: Colors.amber),
                         SizedBox(width: 8),
                         Text('➕ Crear nuevo propósito'),
                       ],
                     ),
-                  )
+                  ),
+                  ..._propositos.map((p) => DropdownMenuItem(
+                    value: p,
+                    child: Text(p),
+                  )),
                 ],
                 onChanged: (value) {
                   setState(() {
