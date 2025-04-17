@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/appscript_service.dart';
+import 'package:flutter/services.dart'; // Para Clipboard
 
 class PromptConsultaWidget extends StatefulWidget {
   const PromptConsultaWidget({super.key});
@@ -129,7 +130,30 @@ class _PromptConsultaWidgetState extends State<PromptConsultaWidget> {
                 margin: const EdgeInsets.symmetric(vertical: 6),
                 child: Padding(
                   padding: const EdgeInsets.all(12),
-                  child: Text(promptTexto),
+                  //...
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: SelectableText(
+                          promptTexto,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.copy, color: Colors.deepPurple),
+                        tooltip: 'Copiar texto',
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: promptTexto));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Texto copiado al portapapeles')),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+//...
                 ),
               );
             }).toList(),

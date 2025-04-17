@@ -94,3 +94,30 @@ Future<List<Map<String, dynamic>>> consultarPromptsPorContextoYProposito(
   }
 }
 
+//Agregado por cambio del Script para estas dos funciones.
+
+/// ✅ NUEVO: Actualizar un prompt por ID
+Future<bool> actualizarPrompt({
+  required String id,
+  required String nuevoTexto,
+}) async {
+  final response = await http.post(Uri.parse(baseUrl), body: {
+    'action': 'updatePrompt',
+    'idPrompt': id,
+    'nuevoTexto': nuevoTexto,
+  });
+
+  return response.statusCode == 200;
+}
+
+/// ✅ NUEVO: Eliminar un prompt por ID
+Future<bool> eliminarPrompt({required String id}) async {
+  final response = await http.post(Uri.parse(baseUrl), body: {
+    'action': 'deletePrompt',
+    'idPrompt': id,
+  });
+
+  return response.statusCode == 200;
+}
+
+
